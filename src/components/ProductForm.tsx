@@ -110,10 +110,10 @@ export function ProductForm({ initialStoreId }: ProductFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Ajouter un produit</h2>
-      
-      <div className="space-y-6">
+    <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-md">
+      <div className="space-y-4 sm:space-y-6">
+        <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Ajouter un produit</h2>
+        
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
             Magasin
@@ -181,34 +181,36 @@ export function ProductForm({ initialStoreId }: ProductFormProps) {
           </div>
         </div>
 
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-            Nom du produit
-          </label>
-          <input
-            type="text"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            required
-          />
-        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+              Nom du produit
+            </label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              required
+            />
+          </div>
 
-        <div>
-          <label htmlFor="price" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-            Prix (€)
-          </label>
-          <input
-            type="number"
-            id="price"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            step="0.01"
-            min="0"
-            className="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            required
-          />
+          <div>
+            <label htmlFor="price" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+              Prix (€)
+            </label>
+            <input
+              type="number"
+              id="price"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              step="0.01"
+              min="0"
+              className="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              required
+            />
+          </div>
         </div>
 
         <button
