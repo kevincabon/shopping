@@ -88,13 +88,13 @@ export function AllProductsList({ selectedStoreId, onAddProduct, products, onAdd
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
           Produits disponibles
         </h2>
         <button
           onClick={onAddProduct}
-          className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-white hover:from-blue-600 hover:to-blue-700 dark:hover:from-blue-700 dark:hover:to-blue-800 transition-all duration-200 shadow-sm hover:shadow focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+          className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-white hover:from-blue-600 hover:to-blue-700 dark:hover:from-blue-700 dark:hover:to-blue-800 transition-all duration-200 shadow-sm hover:shadow focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
         >
           <Plus className="w-5 h-5 mr-2" />
           Ajouter un produit
@@ -108,12 +108,12 @@ export function AllProductsList({ selectedStoreId, onAddProduct, products, onAdd
       ) : (
         <div className="space-y-3">
           {localProducts.map(product => (
-            <div key={product.id} className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center space-x-4">
+            <div key={product.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 gap-4">
+              <div className="flex items-center space-x-4 w-full sm:w-auto">
                 <div className="flex-shrink-0">
                   <ProductImage imageUrl={product.image_url} />
                 </div>
-                <div>
+                <div className="flex-1">
                   <h3 className="font-medium text-gray-900 dark:text-white">{product.name}</h3>
                   <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">
                     {formatPrice(product.price)}
@@ -126,7 +126,7 @@ export function AllProductsList({ selectedStoreId, onAddProduct, products, onAdd
                   )}
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
                 <Link
                   to={`/product/${product.id}/history`}
                   className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
@@ -150,7 +150,7 @@ export function AllProductsList({ selectedStoreId, onAddProduct, products, onAdd
                 </button>
                 <button
                   onClick={() => toggleInList(product)}
-                  className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-xl bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 text-white hover:from-green-600 hover:to-green-700 dark:hover:from-green-700 dark:hover:to-green-800 transition-all duration-200 shadow-sm hover:shadow focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                  className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-xl bg-gradient-to-r from-green-500 to-green-600 dark:from-green-600 dark:to-green-700 text-white hover:from-green-600 hover:to-green-700 dark:hover:from-green-700 dark:hover:to-green-800 transition-all duration-200 shadow-sm hover:shadow focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
                 >
                   <Plus className="w-5 h-5 mr-2" />
                   Ajouter à la liste
