@@ -213,20 +213,22 @@ export const supabaseService = {
   },
 
   // Shopping Lists
-  async getShoppingLists(storeId?: number) {
+  async getShoppingLists(storeId?: number | null) {
     try {
       let query = supabase
         .from('shopping_lists')
         .select(`
           *,
           shopping_list_items!inner (
-            *,
+            id,
+            price,
+            quantity,
             product:products!inner (*)
           )
         `)
         .order('created_at', { ascending: false });
 
-      if (storeId) {
+      if (storeId !== null && storeId !== undefined) {
         query = query.eq('store_id', storeId);
       }
 
