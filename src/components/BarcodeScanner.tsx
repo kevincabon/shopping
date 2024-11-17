@@ -13,12 +13,9 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [hasDetectedCode, setHasDetectedCode] = useState(false);
-  const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([]);
-  const [selectedDeviceId, setSelectedDeviceId] = useState<string>('');
   const codeReader = useRef<BrowserMultiFormatReader | null>(null);
 
   useEffect(() => {
-    // Vérifier si nous sommes en HTTPS ou localhost
     const isSecureContext = window.isSecureContext;
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
@@ -39,70 +36,45 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
     ]);
     hints.set(DecodeHintType.TRY_HARDER, true);
     hints.set(DecodeHintType.PURE_BARCODE, true);
-    hints.set(DecodeHintType.ASSUME_GS1, true);
 
     codeReader.current = new BrowserMultiFormatReader(hints);
-    console.log('Scanner initialisé');
-
-    // Liste des caméras disponibles
-    const listVideoDevices = async () => {
-      try {
-        const devices = await codeReader.current?.listVideoInputDevices();
-        if (devices && devices.length > 0) {
-          console.log('Caméras disponibles:', devices);
-          setVideoDevices(devices);
-          // Sur mobile, on essaie de sélectionner la caméra arrière par défaut
-          const backCamera = devices.find(device => 
-            device.label.toLowerCase().includes('back') || 
-            device.label.toLowerCase().includes('arrière') ||
-            device.label.toLowerCase().includes('environment')
-          );
-          setSelectedDeviceId(backCamera?.deviceId || devices[0].deviceId);
-        }
-      } catch (err) {
-        console.error('Erreur lors de la liste des caméras:', err);
-      }
-    };
-
-    listVideoDevices();
-
-    return () => {
-      if (codeReader.current) {
-        codeReader.current.reset();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!selectedDeviceId || hasDetectedCode) return;
 
     const startScanning = async () => {
       try {
-        if (!codeReader.current) return;
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('L\'accès à la caméra n\'est pas supporté sur cet appareil');
+        }
 
-        setIsScanning(true);
-        console.log('Démarrage du scan avec la caméra:', selectedDeviceId);
-
-        await codeReader.current.decodeFromVideoDevice(
-          selectedDeviceId,
-          videoRef.current!,
-          (result, error) => {
-            if (result && !hasDetectedCode) {
-              const barcode = result.getText();
-              console.log('Code-barres détecté:', barcode);
-              setHasDetectedCode(true);
-              setIsScanning(false);
-              toast.success('Code-barres détecté');
-              onScan(barcode);
-              onClose();
-            }
-            if (error && !(error instanceof NotFoundException)) {
-              console.error('Erreur de lecture:', error);
-            }
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { 
+            facingMode: { exact: 'environment' },
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
           }
-        );
+        });
+
+        if (videoRef.current && codeReader.current && !hasDetectedCode) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play();
+          setIsScanning(true);
+
+          await codeReader.current.decodeFromVideoDevice(
+            undefined,
+            videoRef.current,
+            (result, error) => {
+              if (result && !hasDetectedCode) {
+                setHasDetectedCode(true);
+                setIsScanning(false);
+                onScan(result.getText());
+                onClose();
+              }
+              if (error && !(error instanceof NotFoundException)) {
+                console.error('Erreur de lecture:', error);
+              }
+            }
+          );
+        }
       } catch (error) {
-        console.error('Erreur lors de l\'accès à la caméra:', error);
         if ((error as Error).name === 'NotAllowedError' || (error as Error).name === 'PermissionDeniedError') {
           setPermissionDenied(true);
           toast.error('Veuillez autoriser l\'accès à la caméra dans les paramètres de votre navigateur');
@@ -112,22 +84,21 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
       }
     };
 
-    startScanning();
+    if (!hasDetectedCode) {
+      startScanning();
+    }
 
     return () => {
+      setIsScanning(false);
       if (codeReader.current) {
         codeReader.current.reset();
       }
+      if (videoRef.current?.srcObject) {
+        const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+        tracks.forEach(track => track.stop());
+      }
     };
-  }, [selectedDeviceId, hasDetectedCode, onScan, onClose]);
-
-  const handleDeviceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedDeviceId(event.target.value);
-    setHasDetectedCode(false);
-    if (codeReader.current) {
-      codeReader.current.reset();
-    }
-  };
+  }, [onScan, onClose, hasDetectedCode]);
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
@@ -174,21 +145,6 @@ export function BarcodeScanner({ onScan, onClose }: BarcodeScannerProps) {
           </div>
         ) : (
           <>
-            {videoDevices.length > 1 && (
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                <select
-                  value={selectedDeviceId}
-                  onChange={handleDeviceChange}
-                  className="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                >
-                  {videoDevices.map((device) => (
-                    <option key={device.deviceId} value={device.deviceId}>
-                      {device.label || `Caméra ${device.deviceId}`}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
             <div className="relative aspect-[4/3] bg-black">
               <video
                 ref={videoRef}
