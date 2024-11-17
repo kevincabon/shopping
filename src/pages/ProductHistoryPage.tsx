@@ -10,7 +10,8 @@ import {
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  ChartOptions
 } from 'chart.js';
 import { supabaseService } from '../services/supabaseService';
 import { formatDate, formatPrice } from '../utils/utils';
